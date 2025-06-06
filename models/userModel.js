@@ -29,6 +29,9 @@ const User = db.define("user", {
   location_long: {
     type: DataTypes.DECIMAL,
     allowNull: true
+  },profilePicture: {
+    type: DataTypes.TEXT,
+    allowNull: true
   }
 }, {
   freezeTableName: true,

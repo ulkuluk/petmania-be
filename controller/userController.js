@@ -1,5 +1,80 @@
 import User from "../models/userModel.js";
 import bcrypt from "bcrypt";
+import multer from 'multer'; // Import multer
+import { Storage } from '@google-cloud/storage';
+
+const storageGCS = new Storage({
+  projectId: "if-b-08", // Ambil dari environment variable
+});
+const bucketName = "petmania-bucket"; 
+const bucket = storageGCS.bucket(bucketName);
+
+// Konfigurasi Multer untuk menangani upload file
+// Menggunakan memory storage karena Multer akan langsung menyerahkan buffer ke GCS
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: {
+    fileSize: 5 * 1024 * 1024, // Batas ukuran file 5MB
+  },
+});
+
+async function uploadProfilePicture(req, res) {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ status: 'failed', msg: 'Tidak ada file yang diunggah.' });
+    }
+    // Perhatikan: userId dikirim melalui field 'userId' di body multipart/form-data
+    const userId = req.body.userId;
+
+    if (!userId) {
+      return res.status(400).json({ status: 'failed', msg: 'User ID tidak ditemukan dalam request body.' });
+    }
+
+    const user = await User.findByPk(userId);
+
+    if (!user) {
+      return res.status(404).json({ status: 'failed', msg: 'User tidak ditemukan.' });
+    }
+
+    // Nama file di GCS (contoh: profile_pictures/userId_timestamp_originalName.jpg)
+    const fileName = `profile_pictures/${userId}_${Date.now()}_${req.file.originalname}`;
+    const blob = bucket.file(fileName);
+    const blobStream = blob.createWriteStream({
+      resumable: false, // Tidak perlu resumable untuk file kecil
+      metadata: {
+        contentType: req.file.mimetype,
+      },
+    });
+
+    blobStream.on('error', (err) => {
+      console.error('GCS Upload Error:', err);
+      return res.status(500).json({ status: 'failed', msg: 'Gagal mengunggah ke Google Cloud Storage.', error: err.message });
+    });
+
+    blobStream.on('finish', async () => {
+      // Pastikan file bersifat publik jika ingin diakses langsung
+      await blob.makePublic();
+
+      const publicUrl = `https://storage.googleapis.com/${bucket.name}/${blob.name}`;
+
+      // Perbarui URL gambar profil di database user
+      user.profilePicture = publicUrl; // SESUAIKAN DENGAN NAMA KOLOM DI MODELMU
+      await user.save();
+
+      return res.status(200).json({
+        status: 'success',
+        msg: 'Foto profil berhasil diunggah dan diperbarui.',
+        data: { profilePictureUrl: publicUrl }
+      });
+    });
+
+    blobStream.end(req.file.buffer);
+
+  } catch (error) {
+    console.error('Error in uploadProfilePicture:', error);
+    return res.status(500).json({ status: 'failed', msg: 'Terjadi kesalahan server.', error: error.message });
+  }
+}
 
 // GET all users
 async function getUsers(req, res) {
@@ -196,4 +271,6 @@ export {
   deleteUser,
   loginHandler,
   logout,
+  upload,
+  uploadProfilePicture,
 };

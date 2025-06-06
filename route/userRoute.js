@@ -7,6 +7,8 @@ import {
   getUserById,
   loginHandler,
   logout,
+  upload, // Import multer middleware
+  uploadProfilePicture
 } from "../controller/userController.js";
 
 
@@ -21,5 +23,6 @@ router.get("/users",  getUsers);
 router.get("/users/:id",  getUserById);
 router.put("/edit-user/:id",  updateUser);
 router.delete("/delete-user/:id",  deleteUser);
+router.post('/users/upload-profile-picture', upload.single('profilePicture'), uploadProfilePicture);
 
 export default router;

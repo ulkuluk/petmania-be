@@ -36,11 +36,11 @@ const PetInSale = db.define(
       allowNull: false,
     },
     location_lat: {
-      type: DataTypes.DECIMAL(10, 8),
+      type: DataTypes.DECIMAL(10, 7),
       allowNull: true,
     },
     location_long: {
-      type: DataTypes.DECIMAL(10, 8),
+      type: DataTypes.DECIMAL(10, 7),
       allowNull: true,
     },
     email: {
@@ -64,7 +64,6 @@ const PetInSale = db.define(
   }
 );
 
-// Relasi
 User.hasMany(PetInSale, { foreignKey: "email" });
 PetInSale.belongsTo(User, { foreignKey: "email" });
 
