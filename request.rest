@@ -1,0 +1,49 @@
+POST http://localhost:5000/register
+Content-Type: application/json
+
+{
+  "name": "user",
+  "email": "user@user.com",
+  "phone": "087",
+  "password": "123",
+  "role": "user"
+}
+
+###
+POST http://localhost:5000/add-petinsale
+Content-Type: application/json
+
+{
+  "name": "anjing",
+  "category": "dog",
+  "description": "ini adalah anjing",
+  "price": 1000000,
+  "age": 2,
+  "healthStatus": "healthy",
+  "imgUrl": "",
+  "location_lat": -6.200000,
+  "location_long": 106.816666,
+  "email": "user@user.com",
+  "status": "available"
+}
+
+###
+POST http://localhost:5000/add-transaction
+Content-Type: application/json
+
+{
+  "buyerEmail": "alfi@alfi.com",
+  "animalId": 4,
+  "sellerEmail": "user@user.com",
+  "status": "pending",
+  "price": 1000000,
+  "shipping_address": "cilegon",
+  "imgUrl": "",
+  "location_lat": -6.200000,
+  "location_long": 106.816666,
+  "email": "user@user.com",
+  "status": "available"
+}
+
+###
+GET http://localhost:5000/users
