@@ -36,11 +36,11 @@ const PetInSale = db.define(
       allowNull: false,
     },
     location_lat: {
-      type: DataTypes.DECIMAL,
+      type: DataTypes.DECIMAL(10, 8),
       allowNull: true,
     },
     location_long: {
-      type: DataTypes.DECIMAL,
+      type: DataTypes.DECIMAL(10, 8),
       allowNull: true,
     },
     email: {
